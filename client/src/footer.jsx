@@ -6,7 +6,7 @@ function Footer(){
         <>
         <StyledFooter>
         
-        <h6>© UniqueLock™</h6>
+        <h6>© Lava kumar™</h6>
         
         </StyledFooter>
         </>
