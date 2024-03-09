@@ -7,7 +7,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb://127.0.0.1:27017/data", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect("mongodb+srv://lavakumar9877:Lav%409877@cluster0.qbrgzki.mongodb.net/data?retryWrites=true&w=majority&appName=Cluster0", { useNewUrlParser: true, useUnifiedTopology: true });
+
 
 app.post('/register', (req, res) => {
     DataModel.create(req.body)
