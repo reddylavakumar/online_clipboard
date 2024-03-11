@@ -1,82 +1,101 @@
 import { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import Retrieve from "./Retrieve";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 function Home() {
-    const [data, setData] = useState('');
-    const [uniid, setUniid] = useState('');
-    const [isVisible, setIsVisible] = useState(false);
+  const [data, setData] = useState("");
+  const [uniid, setUniid] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsVisible(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsVisible(true);
 
-        const generatedNumber = generateUniqueNumber();
-        setUniid(generatedNumber);
+    try {
+      const generatedNumber = await generateUniqueNumber(); // Generate unique ID
+      setUniid(generatedNumber);
 
-        try {
-            const response = await axios.post('http://localhost:3001/register', { data, uniid:generatedNumber });
-            console.log(response.data); 
-        } catch (error) {
-            console.error('Error registering data:', error);
-        }
-    };
+      const response = await axios.post("http://localhost:3001/register", {
+        data,
+        uniid: generatedNumber,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error registering data:", error);
+    }
+  };
 
-    const generateUniqueNumber = () => {
-        let generatedNumber;
-        do {
-            generatedNumber = Math.floor(1000 + Math.random() * 9000);
-        } while (generatedNumber === parseInt(uniid));
-        return generatedNumber;
-    };
+  const generateUniqueNumber = async () => {
+    let generatedNumber;
+    do {
+      generatedNumber = Math.floor(1000 + Math.random() * 9000);
+    } while (await checkUniqueIdExists(generatedNumber)); // Check if ID exists
+    return generatedNumber;
+  };
 
-    return (
-        <Container>
+  const checkUniqueIdExists = async (generatedNumber) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/data/${generatedNumber}`
+      );
+      return response.data !== null; // Return true if ID exists
+    } catch (error) {
+      console.error("Error checking unique ID:", error);
+      return false;
+    }
+  };
+
+  return (
+    <Container>
+      <div>
         <div>
-             <div>
-            <h3>
+          <h3>
             <i>Already have a code and Wanna Retrieve</i> &nbsp;
-                <Link to="/retrieve" className="btn btn-primary">&nbsp;<i>Retrieve</i></Link>
-            </h3>
-            
-            </div>
-            <br></br>
-            <br></br>
-            <br></br>
-            <br></br>
-                <h3><i>Please enter the information you'd like to send to the clipboard.</i></h3>
-            <form onSubmit={handleSubmit}>
-                <textarea
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter your text here"
-                    autoComplete="off"
-                    name="data"
-                    value={data}
-                    onChange={(e) => setData(e.target.value)}
-                    required
-                /><br />
-                <button className="btn btn-primary" type="submit">Send to clipboard</button>
-            </form>
-            <br></br>
-            {isVisible && <h4>Your retrieval id is : {uniid}</h4>}
-            
-
-            
+            <Link to="/retrieve" className="btn btn-primary">
+              &nbsp;<i>Retrieve</i>
+            </Link>
+          </h3>
         </div>
-        </Container>
-    );
+        <br />
+        <br />
+        <br />
+        <br />
+        <h3>
+          <i>
+            Please enter the information you'd like to send to the clipboard.
+          </i>
+        </h3>
+        <form onSubmit={handleSubmit}>
+          <textarea
+            type="text"
+            className="form-control"
+            placeholder="Enter your text here"
+            autoComplete="off"
+            name="data"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            required
+          />
+          <br />
+          <button className="btn btn-primary" type="submit">
+            Send to clipboard
+          </button>
+        </form>
+        <br />
+        {isVisible && <h4>Your retrieval id is : {uniid}</h4>}
+      </div>
+    </Container>
+  );
 }
 
 export default Home;
 
-
 const Container = styled.div`
-button{
+  button {
     border-radius: 13px;
     background: #254799;
-    box-shadow:  35px 35px 70px #696969,
-     -35px -35px 70px #ffffff;
-}`
+    box-shadow: 35px 35px 70px #696969, -35px -35px 70px #ffffff;
+  }
+`;
